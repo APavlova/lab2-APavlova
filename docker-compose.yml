@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  database:
+    image: postgres:12.5-alpine
+    container_name: postgres
+    restart: on-failure
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "postgres"
+      POSTGRES_DB: postgres
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      # - ./postgres/:/docker-entrypoint-initdb.d/
+
+  store-service:
+    image: kariae/symfony-php:7.4
+    container_name: store-service
+    ports:
+      - 80:9000
+    volumes:
+      - ./store-service/:/var/www/app/
+    depends_on:
+      - database
+
+volumes:
+  db-data:
