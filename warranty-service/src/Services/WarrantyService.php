@@ -30,10 +30,62 @@ class WarrantyService
         $this->entityManager->flush();
     }
 
+    public function deleteWarranty($uuid): bool
+    {
+        if ($warranty = $this->warrantyRepository->findOneBy(['uuid' => $uuid])) {
+            $warranty->setStatus(Warranty::STATUS_REMOVED);
+            $warranty->setComment('Warranty was REMOVED!');
+            $this->entityManager->flush();
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     public function getWarrantyJson($uuid): ?array
     {
-        $warranty = $this->warrantyRepository->findOneBy(['uuid' => $uuid]);
+        if ($warranty = $this->warrantyRepository->findOneBy(['uuid' => $uuid])) {
+            return [
+                'itemUUID' => $warranty->getUuid(),
+                'comment' => $warranty->getComment(),
+                'warrantyDate' => $warranty->getDateStarted()->format('c'),
+                'status' => $warranty->getStatus()
+            ];
+        } else {
+            return null;
+        }
+    }
 
+    public function getDecisionJson($uuid, $reason, $availableCount): ?array
+    {
+        if ($warranty = $this->warrantyRepository->findOneBy(['uuid' => $uuid])) {
+            $status = $warranty->getStatus();
+            $date = $warranty->getDateStarted()->format('c');
 
+            if ($status == Warranty::STATUS_ACTIVE) {
+                $warranty->setStatus(Warranty::STATUS_USED);
+                $warranty->setComment('Warranty was USED with reason: '.$reason);
+                $this->entityManager->flush();
+
+                if ($availableCount > 0) {
+                    return [
+                        'warrantyDate' => $date,
+                        'decision' => 'RETURN'
+                    ];
+                } else {
+                    return [
+                        'warrantyDate' => $date,
+                        'decision' => 'FIXING'
+                    ];
+                }
+            } else {
+                return [
+                    'warrantyDate' => $date,
+                    'decision' => 'REFUSED'
+                ];
+            }
+        } else {
+            return null;
+        }
     }
 }

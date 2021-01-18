@@ -85,8 +85,103 @@
 				},
 				{
 					"name": "Warranty status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Warranty status\", function() {\r",
+									"    pm.response.to.have.status(200)\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.eql(\"application/json\")\r",
+									"    \r",
+									"    const response = pm.response.json()\r",
+									"    const itemUUID = pm.variables.get(\"itemUUID\")\r",
+									"    pm.expect(response.itemUUID).to.eq(itemUUID)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{warrantyURL}}/warranty/{{itemUUID}}",
+							"host": [
+								"{{warrantyURL}}"
+							],
+							"path": [
+								"warranty",
+								"{{itemUUID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Request for warranty",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Request for warranty\", function() {\r",
+									"    pm.response.to.have.status(200)\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.eql(\"application/json\")\r",
+									"    \r",
+									"    const response = pm.response.json()\r",
+									"    pm.expect(response.decision).to.eq(\"RETURN\")\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"reason\": \"It drowned\",\r\n    \"availableCount\": 3\r\n}"
+						},
+						"url": {
+							"raw": "{{warrantyURL}}/warranty/{{itemUUID}}/warranty",
+							"host": [
+								"{{warrantyURL}}"
+							],
+							"path": [
+								"warranty",
+								"{{itemUUID}}",
+								"warranty"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Stop warranty",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Stop warranty\", function() {\r",
+									"    pm.response.to.have.status(204)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
 						"header": [],
 						"url": {
 							"raw": "{{warrantyURL}}/warranty/{{itemUUID}}",

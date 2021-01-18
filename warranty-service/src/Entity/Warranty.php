@@ -93,6 +93,4 @@ class Warranty
 
         return $this;
     }
-
-
 }
