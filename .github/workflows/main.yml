@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  deploy:
+  deploy-warranty:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -18,3 +18,4 @@ jobs:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: "warranty-service-pavlova"
           heroku_email: "alena.pavlova000@gmail.com"
+          appdir: warranty-service
