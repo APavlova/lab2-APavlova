@@ -41,6 +41,7 @@ services:
     container_name: nginx
     ports:
       - "5000:5000"
+      - "5001:5001"
       - "5002:5002"
       - "5003:5003"
     volumes:
@@ -52,7 +53,7 @@ services:
       - store-service
 
   store-service:
-    image: php:7-fpm
+    image: kariae/symfony-php:7.4
     container_name: store-service
     environment:
       DATABASE_URL: ${DATABASE_URL}
@@ -62,6 +63,21 @@ services:
       - app
     depends_on:
       - database
+
+  order-service:
+    image: kariae/symfony-php:7.4
+    container_name: order-service
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      WAREHOUSE_URL: ${WAREHOUSE_URL}
+      WARRANTY_URL: ${WARRANTY_URL}
+    volumes:
+      - ./order-service/:/var/www/app/
+    networks:
+      - app
+    depends_on:
+      - database
+    command: sh -c "composer install && exec php-fpm" 
 
   warehouse-service:
     image: kariae/symfony-php:7.4
@@ -75,6 +91,7 @@ services:
       - app
     depends_on:
       - database
+    command: sh -c "composer install && exec php-fpm"      
 
   warranty-service:
     image: kariae/symfony-php:7.4
@@ -87,3 +104,4 @@ services:
       - app
     depends_on:
       - database
+    command: sh -c "composer install && exec php-fpm" 
