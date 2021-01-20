@@ -41,12 +41,14 @@ services:
     container_name: nginx
     ports:
       - "5000:5000"
+      - "5002:5002"
       - "5003:5003"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     networks:
       - app
     depends_on:
+      - warehouse-service
       - store-service
 
   store-service:
@@ -56,6 +58,19 @@ services:
       DATABASE_URL: ${DATABASE_URL}
     volumes:
       - ./store-service/:/var/www/app/
+    networks:
+      - app
+    depends_on:
+      - database
+
+  warehouse-service:
+    image: kariae/symfony-php:7.4
+    container_name: warehouse-service
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      WARRANTY_URL: ${WARRANTY_URL}
+    volumes:
+      - ./warehouse-service/:/var/www/app/
     networks:
       - app
     depends_on:

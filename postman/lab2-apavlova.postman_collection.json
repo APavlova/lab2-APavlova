@@ -6,8 +6,246 @@
 	},
 	"item": [
 		{
-			"name": "Store",
+			"name": "Store Service",
 			"item": []
+		},
+		{
+			"name": "Order Service",
+			"item": []
+		},
+		{
+			"name": "Warehouse Service",
+			"item": [
+				{
+					"name": "Health Check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Health check\", function() {\r",
+									"    pm.response.to.have.status(200)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{warehouseURL}}/healthCheck",
+							"host": [
+								"{{warehouseURL}}"
+							],
+							"path": [
+								"healthCheck"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Take item from warehouse",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var uuid = require(\"uuid\")\r",
+									"postman.setEnvironmentVariable(\"orderUUID\", uuid.v4())"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Take item from Warehouse\", function() {\r",
+									"    pm.response.to.have.status(200)\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.eql(\"application/json\")\r",
+									"    \r",
+									"    const response = pm.response.json()\r",
+									"    const orderUUID = pm.variables.get(\"orderUUID\")\r",
+									"    pm.expect(response.orderItemUUID).to.exist\r",
+									"    pm.expect(response.orderUUID).to.eq(orderUUID)\r",
+									"    pm.expect(response.model).to.eq(\"Lego 8070\")\r",
+									"    pm.expect(response.size).to.eq(\"M\")\r",
+									"\r",
+									"    pm.environment.set(\"orderItemUUID\", response.orderItemUUID)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"orderUUID\": \"{{orderUUID}}\",\r\n    \"model\": \"Lego 8070\",\r\n    \"size\": \"M\"\r\n}"
+						},
+						"url": {
+							"raw": "{{warehouseURL}}/warehouse",
+							"host": [
+								"{{warehouseURL}}"
+							],
+							"path": [
+								"warehouse"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get item info",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Get item info\", function() {\r",
+									"    pm.response.to.have.status(200)\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.eql(\"application/json\");\r",
+									"    \r",
+									"    const response = pm.response.json();\r",
+									"    pm.expect(response.model).to.eq(\"Lego 8070\")\r",
+									"    pm.expect(response.size).to.eq(\"M\")\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{warehouseURL}}/warehouse/{{orderItemUUID}}",
+							"host": [
+								"{{warehouseURL}}"
+							],
+							"path": [
+								"warehouse",
+								"{{orderItemUUID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Warranty Request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Warranty request\", function() {\r",
+									"    pm.response.to.have.status(404)\r",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.eql(\"application/json\");\r",
+									"    \r",
+									"    const response = pm.response.json();\r",
+									"    const orderUUID = pm.variables.get(\"orderUUID\")\r",
+									"    pm.expect(response.message).to.eq(\"Warranty not found for orderUUID: \" + orderUUID)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"reason\": \"It drowned\"\r\n}"
+						},
+						"url": {
+							"raw": "{{warehouseURL}}/warehouse/{{orderUUID}}/warranty",
+							"host": [
+								"{{warehouseURL}}"
+							],
+							"path": [
+								"warehouse",
+								"{{orderUUID}}",
+								"warranty"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Return item to warehouse",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Return item\", function() {\r",
+									"    pm.response.to.have.status(204)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{warehouseURL}}/warehouse/{{orderItemUUID}}",
+							"host": [
+								"{{warehouseURL}}"
+							],
+							"path": [
+								"warehouse",
+								"{{orderItemUUID}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		},
 		{
 			"name": "Warranty Service",
