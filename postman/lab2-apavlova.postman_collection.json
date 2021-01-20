@@ -11,7 +11,313 @@
 		},
 		{
 			"name": "Order Service",
-			"item": []
+			"item": [
+				{
+					"name": "Health Check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Health check\", function() {\r",
+									"    pm.response.to.have.status(200)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{orderURL}}/healthCheck",
+							"host": [
+								"{{orderURL}}"
+							],
+							"path": [
+								"healthCheck"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create order",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var uuid = require(\"uuid\");",
+									"postman.setEnvironmentVariable(\"userUUID\", uuid.v4());"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Create order\", function() {",
+									"    pm.response.to.have.status(200)",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.eql(\"application/json\");",
+									"",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.orderUUID).to.not.empty",
+									"    pm.environment.set(\"orderUUID\", response.orderUUID)",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"model\": \"Lego 8070\",\n    \"size\": \"M\"\n}"
+						},
+						"url": {
+							"raw": "{{orderURL}}/orders/{{userUUID}}",
+							"host": [
+								"{{orderURL}}"
+							],
+							"path": [
+								"orders",
+								"{{userUUID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User order info",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"User order info\", function() {",
+									"    pm.response.to.have.status(200)",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.eql(\"application/json\");",
+									"    const response = pm.response.json();",
+									"    const orderUUID = pm.variables.get(\"orderUUID\")",
+									"    pm.expect(response.orderUUID).to.eq(orderUUID)",
+									"    pm.expect(response.orderItemUUID).to.not.empty",
+									"    pm.expect(response.status).to.eq(\"PAID\")",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{orderURL}}/orders/{{userUUID}}/{{orderUUID}}",
+							"host": [
+								"{{orderURL}}"
+							],
+							"path": [
+								"orders",
+								"{{userUUID}}",
+								"{{orderUUID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "User orders info",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"User orders info\", function() {",
+									"    pm.response.to.have.status(200)",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.eql(\"application/json\");",
+									"    const response = pm.response.json();",
+									"    const orderUUID = pm.variables.get(\"orderUUID\")",
+									"    pm.expect(response.length).to.be.above(0)",
+									"    console.log(response[0])",
+									"    var order = response.find(item => item.orderUUID === orderUUID)",
+									"    pm.expect(order.orderUUID).to.eq(orderUUID)",
+									"    pm.expect(order.orderItemUUID).to.not.empty",
+									"    pm.expect(order.status).to.eq(\"PAID\")",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{orderURL}}/orders/{{userUUID}}",
+							"host": [
+								"{{orderURL}}"
+							],
+							"path": [
+								"orders",
+								"{{userUUID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Warranty request",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Warranty request\", function() {",
+									"    pm.response.to.have.status(200)",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.eql(\"application/json\")",
+									"    const response = pm.response.json()",
+									"    pm.expect(response.warrantyDate).to.not.empty",
+									"    pm.expect(response.decision).to.eq(\"RETURN\")",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"reason\": \"It drowned\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{orderURL}}/orders/{{orderUUID}}/warranty",
+							"host": [
+								"{{orderURL}}"
+							],
+							"path": [
+								"orders",
+								"{{orderUUID}}",
+								"warranty"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Return order",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Return order\", function() {",
+									"    pm.response.to.have.status(204)",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{orderURL}}/orders/{{orderUUID}}",
+							"host": [
+								"{{orderURL}}"
+							],
+							"path": [
+								"orders",
+								"{{orderUUID}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		},
 		{
 			"name": "Warehouse Service",
@@ -169,7 +475,7 @@
 									"    \r",
 									"    const response = pm.response.json();\r",
 									"    const orderUUID = pm.variables.get(\"orderUUID\")\r",
-									"    pm.expect(response.message).to.eq(\"Warranty not found for orderUUID: \" + orderUUID)\r",
+									"    pm.expect(response.message).to.eq(\"WarehouseService: Warranty not found for orderItemUUID: \" + orderUUID)\r",
 									"})"
 								],
 								"type": "text/javascript"

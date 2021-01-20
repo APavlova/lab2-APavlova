@@ -56,9 +56,9 @@ class WarrantyService
         }
     }
 
-    public function getDecisionJson($uuid, $reason, $availableCount): ?array
+    public function getDecisionJson($orderItemUUID, $reason, $availableCount): ?array
     {
-        if ($warranty = $this->warrantyRepository->findOneBy(['uuid' => $uuid])) {
+        if ($warranty = $this->warrantyRepository->findOneBy(['uuid' => $orderItemUUID])) {
             $status = $warranty->getStatus();
             $date = $warranty->getDateStarted()->format('c');
 

@@ -69,16 +69,20 @@ class WarehouseService
         }
     }
 
-    public function warrantyRequest($orderUUID, string $reason): ?array
+    public function warrantyRequest($orderItemUUID, string $reason): ?array
     {
-        $response = $this->client->request(
-            'POST',
-            getenv('WARRANTY_URL').'/warranty/'.$orderUUID.'/warranty',
-            ['json' => ['reason' => $reason],
-        ]);
+        if ($orderItem = $this->orderItemRepository->findOneBy(['orderItemUUID' => $orderItemUUID])) {
+            $response = $this->client->request(
+                'POST',
+                getenv('WARRANTY_URL').'/warranty/'.$orderItemUUID.'/warranty',
+                ['json' => ['reason' => $reason, 'availableCount' => $orderItem->getItem()->getAvailableCount()],
+                ]);
 
-        if ($response->getStatusCode() == 200) {
-            return $response->toArray();
+            if ($response->getStatusCode() == 200) {
+                return $response->toArray();
+            } else {
+                return null;
+            }
         } else {
             return null;
         }

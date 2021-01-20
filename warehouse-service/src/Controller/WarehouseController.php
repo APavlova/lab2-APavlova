@@ -51,21 +51,21 @@ class WarehouseController extends AbstractController
     }
 
     /**
-     * @Route("/warehouse/{orderUUID}/warranty", name="warehouse_warrantyRequest", methods={"POST"})
-     * @param $orderUUID
+     * @Route("/warehouse/{orderItemUUID}/warranty", name="warehouse_warrantyRequest", methods={"POST"})
+     * @param $orderItemUUID
      * @param Request $request
      * @param WarehouseService $warehouseService
      * @return JsonResponse
      */
-    public function warrantyRequest($orderUUID, Request $request, WarehouseService $warehouseService): JsonResponse
+    public function warrantyRequest($orderItemUUID, Request $request, WarehouseService $warehouseService): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
-        if ($warrantyJson = $warehouseService->warrantyRequest($orderUUID, $data['reason'])) {
+        if ($warrantyJson = $warehouseService->warrantyRequest($orderItemUUID, $data['reason'])) {
             return $this->json($warrantyJson, JsonResponse::HTTP_OK);
         } else {
             return $this->json([
-                'message' => 'Warranty not found for orderUUID: '.$orderUUID
+                'message' => 'WarehouseService: '.'Warranty not found for orderItemUUID: '.$orderItemUUID
             ], JsonResponse::HTTP_NOT_FOUND);
         }
     }
