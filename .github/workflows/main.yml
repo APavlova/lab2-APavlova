@@ -61,3 +61,19 @@ jobs:
           heroku_app_name: "warranty-service-pavlova"
           heroku_email: "alena.pavlova000@gmail.com"
           appdir: warranty-service
+
+  integration_tests:
+    needs: [deploy-store, deploy-order, deploy-warehouse, deploy-warranty]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Run API Tests
+        id: run-newman
+        uses: anthonyvscode/newman-action@v1
+        with:
+          collection: postman/lab2-apavlova.postman_collection.json
+          environment: postman/lab2-apavlova.heroku.postman_environment.json
+          delayRequest: 50
+          reporters: cli
