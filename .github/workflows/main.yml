@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  deploy-order:
+  deploy-store:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
