@@ -16,6 +16,20 @@ jobs:
         uses: akhileshns/heroku-deploy@v3.6.8
         with:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: "store-service-pavlova"
+          heroku_email: "alena.pavlova000@gmail.com"
+          appdir: store-service
+
+  deploy-order:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Deploy to Heroku
+        uses: akhileshns/heroku-deploy@v3.6.8
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: "order-service-pavlova"
           heroku_email: "alena.pavlova000@gmail.com"
           appdir: order-service
